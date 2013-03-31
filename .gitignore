@@ -1,3 +1,3 @@
-Pointer/bin/*
-Pointer/obj/*
+Pointer/obj/*.*
+Pointer/bin/*.*
 *.dll
