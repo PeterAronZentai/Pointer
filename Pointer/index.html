@@ -8,6 +8,8 @@
 
   <link rel="stylesheet" href="foundation4/css/normalize.css" />  
   <link rel="stylesheet" href="foundation4/css/foundation.css" />
+	<script src="jquery/jquery-1.9.1.min.js"></script>
+	<script src="jquery/jquery-migrate-1.1.1.min.js"></script>
   
   <!--script src="js/vendor/custom.modernizr.js"></script-->
 
@@ -15,8 +17,8 @@
 	html, body {
 		padding: 0;
     	margin: 0px;
+        width:100%;
     	height: 100%;
-    	width: 100%;
 	}
 	#map {
     	padding: 0px;
@@ -26,89 +28,99 @@
     	height: 100%; 
     	width: 100%;
 	}
-	.row {
-		width: 100%;
-		max-width: 100%; 
-	}
-	.row .columns {
-		padding: 0px;
-	}
   </style>
 </head>
 <body>
 
 	<div id="map"></div>
 
-	<div id="myModal" class="reveal-modal">
-		<form>
-		  <fieldset data-bind="with: poi">
-		    <legend>Edit POI</legend>
+	<div id="myModal" class="reveal-modal" style="z-index:1000">
+        <div class="row">
+		<form class="large-12 columns" data-bind="with: poi">
+            <h1 class="hide-for-small">Manage point data</h1>
+            <h3 class="show-for-small hide-for-landscape">Manage data</h3>
+            <!--<legend>Edit POI</legend>-->
+              <div class="row">
+                <div class="large-4 columns">
+		              <div>
+		                <label>Name</label>
+		                <input type="text" placeholder="Name" data-bind="value: name">
+		              </div>
+		              <div>
+		                <label>Phone</label>
+		                <input type="text" placeholder="Phone" data-bind="value: phone">
+		              </div>
+                     <div>
+		                <label>Category</label>
+		                <input type="text" placeholder="Category" data-bind="value: cat">
+		              </div>
+                </div>    
+                <div class="large-4 columns hide-for-small">
+                    <div>
+		                <label>Address</label>
+		                <input type="text" placeholder="Address" data-bind="value: addr">
+		            </div>
+		          <div>
+		            <label>City</label>
+		            <input type="text" placeholder="City" data-bind="value: city">
+		          </div>
+		          <div>
+		            <label>ZIP/Postal</label>
+		            <input type="text" placeholder="Postal" data-bind="value: postal">
+		          </div>
+                  </div>
+                <div class="large-4 columns hide-for-small">
+		          <div>
+		            <label>State/Province</label>
+		            <input type="text" placeholder="Province" data-bind="value: province">
+		          </div>
+		          <div>
+		            <label>Country</label>
+		            <input type="text" placeholder="Country" data-bind="value: country">
+		          </div>
+		        </div>
 
-		    <div class="row">
-		      <div class="large-8 columns">
-		        <label>Name</label>
-		        <input type="text" placeholder="Name" data-bind="value: name">
-		      </div>
-		      <div class="large-4 columns">
-		        <label>Phone</label>
-		        <input type="text" placeholder="Phone" data-bind="value: phone">
-		      </div>
+              </div>
+
+		    <div class="row hide-for-small">
+                <div class="large-2 columns">
+                    <a href="#" class="button prefix success" data-bind="click: $parent.saveEdit">Save</a>
+                </div>
+                <div class="large-2 columns">
+                    <a href="#" class="button prefix secondary" data-bind="click: $parent.cancelEdit">Cancel</a>
+                </div>
+                <div class="large-2 columns">
+    	            <a href="#" class="button prefix alert" data-bind="click: $parent.removePoi">Remove</a>
+                </div>
+		    </div>
+            
+            <div class="row show-for-small">
+                <div class="small-12 columns">
+                    <a href="#" class="button prefix success" data-bind="click: $parent.saveEdit">Save</a>
+                </div>
+            </div>
+             
+		    <div class="row show-for-small">
+                <div class="small-6 columns">
+                    <a href="#" class="button prefix secondary" data-bind="click: $parent.cancelEdit">Cancel</a>
+                </div>
+                <div class="small-6 columns">
+    	            <a href="#" class="button prefix alert" data-bind="click: $parent.removePoi">Remove</a>
+                </div>
 		    </div>
 
-		    <div class="row">
-		      <div class="large-4 columns">
-		        <label>Address</label>
-		        <input type="text" placeholder="Address" data-bind="value: addr">
-		      </div>
-		      <div class="large-4 columns">
-		        <label>City</label>
-		        <input type="text" placeholder="City" data-bind="value: city">
-		      </div>
-		      <div class="large-4 columns">
-		        <label>Postal</label>
-		        <input type="text" placeholder="Postal" data-bind="value: postal">
-		      </div>
-		    </div>
-
-		    <div class="row">
-		      <div class="large-4 columns">
-		        <label>Province</label>
-		        <input type="text" placeholder="Province" data-bind="value: province">
-		      </div>
-		      <div class="large-4 columns">
-		        <label>Country</label>
-		        <input type="text" placeholder="Country" data-bind="value: country">
-		      </div>
-		      <div class="large-4 columns">
-		        <label>Category</label>
-		        <input type="text" placeholder="Category" data-bind="value: cat">
-		      </div>
-		    </div>
-
-		  </fieldset>
-
-		  <div class="row">
-		    <div class="large-2 columns">
-	          <a href="#" class="button prefix" data-bind="click: cancelEdit">Cancel</a>
-		    </div>
-            <div class="large-2 columns">
-	          <a href="#" class="button prefix" data-bind="click: removePoi">Remove</a>
-		    </div>
-		    <div class="large-2 columns">
-	          <a href="#" class="button prefix" data-bind="click: saveEdit">Save</a>
-		    </div>
-		  </div>
-
+		  
 		</form>
-		<a class="close-reveal-modal">&#215;</a>
-	</div>
+        </div>
 
-	<script src="jquery/jquery-1.9.1.min.js"></script>
-	<script src="jquery/jquery-migrate-1.1.1.min.js"></script>
+
+		<a class="close-reveal-modal">&#215;</a>
+    </div>
+
 	<script src="foundation4/js/foundation.min.js"></script>
 
-	<link href="leafletjs/leaflet.css" rel="stylesheet" />
-	<script src="leafletjs/leaflet.js"></script>
+	<link href="http://leafletjs.com/dist/leaflet.css" rel="stylesheet" />
+	<script src="http://leafletjs.com/dist/leaflet.js"></script>
     <script src="leafletjs/BingLayer.js"></script>
 
 	<script src="knockoutjs/knockout-2.2.1.js"></script>
