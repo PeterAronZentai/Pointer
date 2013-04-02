@@ -31,19 +31,19 @@ function main() {
     //var lmap = L.map('map').setView([47.4981, 19.04], 13);
 
 
-    var lmap = new L.Map('map', { center: new L.LatLng(47.4981, 19.04), zoom: 9 });
+    lmap = new L.Map('map', { center: new L.LatLng(40.72121341440144, -74.00126159191132), maxZoom: 22, zoom: 12 });
     //var osm = new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
     var bing = new L.BingLayer("Anqm0F_JjIZvT0P3abS6KONpaBaKuTnITRrnYuiJCE0WOhH6ZbE4DzeT6brvKVR5");
     //var cloudmade = new L.TileLayer('http://{s}.tile.cloudmade.com/003d6e8d9af14e7582b462c10e572a1a/997/256/{z}/{x}/{y}.png');
     lmap.addLayer(bing);
     //lmap.addControl(new L.Control.Layers({ "Bing": bing, 'CloudMade': cloudmade, 'OSM': osm,  }, {}));
 
-
-
-
+    //alert("getting position");
     navigator.geolocation.getCurrentPosition(function (o) {
         //console.dir(arguments);
-        lmap.setView([o.coords.latitude, o.coords.longitude], 14);
+        lmap.setView([o.coords.latitude, o.coords.longitude], 15);
+        //alert("position acquired");
+        console.log("position:", o);
     })
     var lgroup = new L.LayerGroup().addTo(lmap);
 
@@ -51,6 +51,8 @@ function main() {
     //    attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://cloudmade.com">CloudMade</a>',
     //    maxZoom: 18
     //}).addTo(lmap);
+
+
 
     function add2map(g) {
         var onEachFeature = function(feature, layer) {
@@ -73,21 +75,37 @@ function main() {
         g.removeMapObject = function () {
             lgroup.removeLayer(x);
         }
-
     }
+
+    var onTheMap = {};
     
-    // https://dev-open.jaystack.net/06b63652-9ec1-4c42-82ad-ed6875efacfb/7b261639-c46e-4913-b14f-ea3d3f899fcb/api/mydatabase')
-    //$data.initService('https://dev-open.jaystack.net/06b63652-9ec1-4c42-82ad-ed6875efacfb/7b261639-c46e-4913-b14f-ea3d3f899fcb/api/mydatabase')
-    //$data.initService('//192.168.1.98:3001/testservice')
+    //$data.service("http://192.168.10.101:12345/hyperlocal").then(function (tp) {
+    //    var hl = tp();
+    //    hl.onReady().then(function () {
+    //        lmap.on("dragend", function () {
+    //            hl.getGeo(lmap.getCenter()).then(function (r) {
+    //                r.results.forEach(function (p) {
+    //                    if (!onTheMap[p.record_id]) {
+    //                        console.log("adding point", p);
+    //                        L.marker([p.record.lat, p.record.lon]).addTo(lmap);
+    //                        onTheMap[p.record_id] = true;
+    //                    }
+    //                });
+    //            });
+    //        });
+    //    });
+    //});
+
     $data.initService('http://dev-open.jaystack.net/a11d6738-0e23-4e04-957b-f14e149a9de8/1162e5ee-49ca-4afd-87be-4e17c491140b/api/mydatabase')
     .then(function (mydatabase, factory, type) {
-        //mydatabase.POI
-        mydatabase.HyperLocal
-        .toArray(function(result) {
-            result.forEach(function(g) {
-                add2map(g);
+
+        mydatabase
+            .HyperLocal
+            .toArray(function(result) {
+                result.forEach(function(g) {
+                    add2map(g);
+                });
             });
-        });
 
         var timer;
 
@@ -108,14 +126,3 @@ function main() {
      });
 };
 
-/*
-- name
-- phone
-- addr
-- city
-- postal
-- province
-- country
-cat
-latlon
-*/

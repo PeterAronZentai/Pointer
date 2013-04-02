@@ -4,10 +4,10 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width" />
   <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
-  <title>Demo for Brad</title>
+  <title>HyperLocal</title>
 
   <link rel="stylesheet" href="foundation4/css/normalize.css" />  
-  <link rel="stylesheet" href="foundation4/css/foundation.css" />
+  <link rel="stylesheet" href="foundation4/css/foundation.min.css" />
 	<script src="jquery/jquery-1.9.1.min.js"></script>
 	<script src="jquery/jquery-migrate-1.1.1.min.js"></script>
   
@@ -29,6 +29,7 @@
     	width: 100%;
 	}
   </style>
+
 </head>
 <body>
 
@@ -117,18 +118,38 @@
 		<a class="close-reveal-modal">&#215;</a>
     </div>
 
+
 	<script src="foundation4/js/foundation.min.js"></script>
 
-	<link href="http://leafletjs.com/dist/leaflet.css" rel="stylesheet" />
-	<script src="http://leafletjs.com/dist/leaflet.js"></script>
+	<link href="leafletjs/leaflet.css" rel="stylesheet" /><!--!!!-->
+	<script src="leafletjs/leaflet.js"></script><!--!!!-->
     <script src="leafletjs/BingLayer.js"></script>
 
 	<script src="knockoutjs/knockout-2.2.1.js"></script>
-
-	<script src="jaydata/datajs-1.0.3-patched.js" type="text/javascript"></script>
-	<script src="jaydata/jaydata.js" type="text/javascript"></script>
+    <script src="jaydata/datajs-1.0.3-patched.min.js"></script>
+	<!--<script src="jaydata/datajs-1.0.3-patched.js" type="text/javascript"></script>-->
+	<script src="jaydata/jaydata.min.js" type="text/javascript"></script>
 	<script src="jaydata/jaydatamodules/knockout.js" type="text/javascript" ></script>
 	<script src="main.js" type="text/javascript"></script>
+    <div id="browserBlocker" class="reveal-modal">
+        <h1>You browser is not supported</h1>
+        <div class="row">
+            <div class="large-6 columns">
+                <h3>You need a HTML5 compliant client to access this application</h3>
+            </div>
+            <div class="large-6 columns">
+                <h4>All mobile browsers</h4>
+                <h4>Google Chrome</h4>
+                <h4>Mozilla Firefox</h4>
+                <h4>Internet Explorer 10+</h4>
+            </div>
+        </div>
+    </div>
+    <!--[if lt IE 10]>
+    <script>
+        $('#browserBlocker').foundation('reveal', 'open');
+    </script>
+    <![endif]-->
 
 	<script>
 		$(document).foundation();
