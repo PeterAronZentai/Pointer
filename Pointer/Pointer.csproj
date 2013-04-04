@@ -57,6 +57,10 @@
     <Reference Include="System.EnterpriseServices" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="awesomefont\css\font-awesome-ie7.min.css" />
+    <Content Include="awesomefont\css\font-awesome.css" />
+    <Content Include="awesomefont\css\font-awesome.min.css" />
+    <Content Include="awesomefont\font\fontawesome-webfont.svg" />
     <Content Include="foundation4\css\foundation.css" />
     <Content Include="foundation4\css\foundation.min.css" />
     <Content Include="foundation4\css\normalize.css" />
@@ -86,6 +90,10 @@
     <Content Include="jaydata\datajs-1.0.3-patched.js" />
     <Content Include="jaydata\datajs-1.1.0.min.js" />
     <Content Include="jaydata\GPL-LICENSE.txt" />
+    <Content Include="awesomefont\font\fontawesome-webfont.eot" />
+    <Content Include="awesomefont\font\fontawesome-webfont.ttf" />
+    <Content Include="awesomefont\font\fontawesome-webfont.woff" />
+    <Content Include="awesomefont\font\FontAwesome.otf" />
     <None Include="jaydata\jaydata-vsdoc.js" />
     <Content Include="jaydata\jaydata.d.ts" />
     <Content Include="jaydata\jaydata.js" />
@@ -136,11 +144,23 @@
     <Content Include="jquery\jquery-migrate-1.1.1.min.js" />
     <Content Include="knockoutjs\knockout-2.2.1.js" />
     <Content Include="leafletjs\BingLayer.js" />
+    <Content Include="leafletjs\cluster.css" />
+    <Content Include="leafletjs\cluster.js" />
     <Content Include="leafletjs\images\layers.png" />
     <Content Include="leafletjs\images\marker-icon%402x.png" />
     <Content Include="leafletjs\images\marker-icon.png" />
     <Content Include="leafletjs\images\marker-shadow.png" />
+    <Content Include="leafletjs\images\markers-matte%402x.png" />
+    <Content Include="leafletjs\images\markers-matte.png" />
+    <Content Include="leafletjs\images\markers-plain.png" />
+    <Content Include="leafletjs\images\markers-shadow%402x.png" />
+    <Content Include="leafletjs\images\markers-shadow.png" />
+    <Content Include="leafletjs\images\markers-soft%402x.png" />
+    <Content Include="leafletjs\images\markers-soft.png" />
     <Content Include="leafletjs\leaflet-src.js" />
+    <Content Include="leafletjs\leaflet.awesome-markers.css" />
+    <Content Include="leafletjs\leaflet.awesome-markers.js" />
+    <Content Include="leafletjs\leaflet.awesome-markers.min.js" />
     <Content Include="leafletjs\leaflet.css" />
     <Content Include="leafletjs\leaflet.ie.css" />
     <Content Include="leafletjs\leaflet.js" />

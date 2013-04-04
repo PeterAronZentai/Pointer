@@ -33,14 +33,70 @@
 </head>
 <body>
 
-	<div id="map"></div>
+	<div id="map">
+
+	</div>
+
+    <div id="addNewPoint" class="reveal-modal" style="z-index:1000">
+        <div class="row">
+            <div class="large-12 columns">
+                <h1 class="hide-for-small">Add a new point</h1>
+                <h3 class="show-for-small">Add point</h3>
+            </div>
+        </div>
+        <div class="row">
+            <div class="large-4 columns" data-bind="with: poi">
+                <label>Name </label>    
+                <input type="text" placeholder="Name of place"  data-bind="value: name"/>
+            </div>    
+            <div class="large-8 columns">
+                <label>Address</label>
+                <div class="row collapse">
+                    <div class="small-4 columns">
+                        <!--<a href="#" class="button postfix show-for-medium-up">Press to locate address</a>-->
+                        <span class="postfix" data-bind="text: reversGeoStatus"></span>
+                    </div>
+                    <div class="small-8 columns">
+                        <!-- ko if: addressResults().length > 0 -->
+                        <input type="text" placeholder="Address" data-bind="value: addressResults()[0].Name"/>
+                        <!-- /ko -->
+                    </div>
+
+                </div>    
+       </div>
+
+    </div>
+                <div class="row">
+                <div class="large-2 small-5 columns">
+                    <a href="#" class="button prefix success" data-bind="click: addNew">Save</a>
+                </div>
+                <div class="large-2 small-5 columns">
+                    <a href="#" class="button prefix secondary" data-bind="click: cancelAddNew">Cancel</a>
+                </div>
+                <div class="large-8 small-2 columns">
+                    
+                </div>
+		</div>
+        <a class="close-reveal-modal">&#215;</a>
+</div>
+
+<!--    <div id="addAddress" class="small reveal-model" style="display:none" >
+        <h1>Set address</h1>
+        <div class="row">
+            <div class="large-4 columns">
+                <label>Input Label</label>
+                <input type="text" placeholder="Name of placex">
+            </div>
+        </div>
+        <a class="close-reveal-modal">&#215;</a>
+    </div>-->
 
 	<div id="myModal" class="reveal-modal" style="z-index:1000">
         <div class="row">
 		<form class="large-12 columns" data-bind="with: poi">
             <h1 class="hide-for-small">Manage point data</h1>
             <h3 class="show-for-small hide-for-landscape">Manage data</h3>
-            <!--<legend>Edit POI</legend>-->
+            <!--<legend style="display:none">Edit POI</legend>-->
               <div class="row">
                 <div class="large-4 columns">
 		              <div>
@@ -120,11 +176,14 @@
 
 
 	<script src="foundation4/js/foundation.min.js"></script>
-
+    <link href="awesomefont/css/font-awesome.css" rel="stylesheet" />
 	<link href="leafletjs/leaflet.css" rel="stylesheet" /><!--!!!-->
+    <link href="leafletjs/leaflet.awesome-markers.css" rel="stylesheet" />
+    <link href="leafletjs/cluster.css" rel="stylesheet" />
 	<script src="leafletjs/leaflet.js"></script><!--!!!-->
+    <script src="leafletjs/leaflet.awesome-markers.js"></script>
     <script src="leafletjs/BingLayer.js"></script>
-
+    <script src="leafletjs/cluster.js"></script>
 	<script src="knockoutjs/knockout-2.2.1.js"></script>
     <script src="jaydata/datajs-1.0.3-patched.min.js"></script>
 	<!--<script src="jaydata/datajs-1.0.3-patched.js" type="text/javascript"></script>-->
