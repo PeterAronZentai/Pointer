@@ -1,4 +1,9 @@
 function main() {
+
+    var me = $data.createGuid();
+    var socket = io.connect('http://dev-open.jaystack.net:80', { resource: "a11d6738-0e23-4e04-957b-f14e149a9de8/1162e5ee-49ca-4afd-87be-4e17c491140b/socket.io" });
+    var points = {};
+
     function resetProps(item) {
         for (var i in item.initData) {
             console.log("resetting: " + i);
@@ -18,7 +23,7 @@ function main() {
         self.poi = ko.observable();
 
 
-        self.reversGeoStatus = ko.observable("Accquire address");
+        self.reversGeoStatus = ko.observable("Acquire address");
         self.addressResults = ko.observable([]);
 
 
@@ -34,22 +39,28 @@ function main() {
                 o.city = addr.Locality;
                 o.addr = addr.AddressLine;
                 o.mapObject().setIcon(blueMarker);
-                o.save();
+                o.save()
+                .then(function() {
+                    points[o.id] = o;
+                    socket.emit('newPoint', { sender: me, p: JSON.stringify(o) });
+                });
                 $('#addNewPoint').foundation('reveal', 'close');
                 //console.dir(o);
             }
         }
 
         self.cancelAddNew = function () {
-            var o = self.poi();
             self.poi().getEntity().removeMapObject();
             $('#addNewPoint').foundation('reveal', 'close');
         }
 
         self.removePoi = function () {
-            self.poi().getEntity().removeMapObject();
-            self.poi().getEntity().remove();
+            var o = self.poi().getEntity();
+            o.removeMapObject();
+            o.remove();
+            delete points[o.id];
             $('#myModal').foundation('reveal', 'close');
+            socket.emit('removePoint', {sender: me, p: JSON.stringify(o)});
         };
         self.cancelEdit = function () {
             self.poi().getEntity().refresh();
@@ -58,7 +69,10 @@ function main() {
         self.saveEdit = function () {
             var e = self.poi().getEntity();
             resetProps(e);
-            e.save();
+            e.save()
+            .then(function() {
+                socket.emit('movePoint', { sender: me, p: JSON.stringify(e) });
+            });
             $('#myModal').foundation('reveal', 'close');
         };
     };
@@ -134,8 +148,6 @@ function main() {
     //    maxZoom: 18
     //}).addTo(lmap);
 
-
-
     function add2map(g, icon) {
         var onEachFeature = function (feature, layer) {
             if (icon)
@@ -145,7 +157,10 @@ function main() {
                 g.latlon.coordinates = [e.target._latlng.lng, e.target._latlng.lat];
                 g.latlon = g.latlon;
                 resetProps(g);
-                g.save();
+                g.save()
+                .then(function () {
+                    socket.emit('movePoint', { sender: me, p: JSON.stringify(g) });
+                });
             });
             layer.on('click', function () {
                 v.poi(g.asKoObservable());
@@ -160,7 +175,10 @@ function main() {
             g.latlon.coordinates = [e.target._latlng.lng, e.target._latlng.lat];
             g.latlon = g.latlon;
             resetProps(g);
-            g.save();
+            g.save()
+            .then(function () {
+                socket.emit('movePoint', { sender: me, p: JSON.stringify(g) });
+            });
         });
 
         marker.on('click', function () {
@@ -186,7 +204,8 @@ function main() {
 
    var localService = null;
 
-    function getPointsAroundMe(service, radius) {
+   function getPointsAroundMe(service, radius) {
+        return;
         service.getGeo(lmap.getCenter(), radius).then(function (r) {
             //console.dir(r);
             for (var i in processed) {
@@ -276,6 +295,7 @@ function main() {
             .toArray(function (result) {
                 result.forEach(function (g) {
                     add2map(g, blueMarker);
+                    points[g.id] = g;
                 });
             });
 
@@ -307,6 +327,38 @@ function main() {
         lmap.on('dblclick', function (e) {
             window.clearTimeout(timer);
         });
+
+        socket.on('newPoint', function (data) {
+            if (data.sender != me) {
+                var g = new mydatabase.HyperLocal.elementType(JSON.parse(data.p));
+                console.log('newPoint received', g);
+                add2map(g);
+                points[g.id] = g;
+            }
+        });
+        socket.on('removePoint', function (data) {
+            if (data.sender != me) {
+                var g = new mydatabase.HyperLocal.elementType(JSON.parse(data.p));
+                console.log('removePoint received', g);
+                var realG = points[g.id];
+                if (realG) {
+                    console.log('real g', realG);
+                    realG.removeMapObject();
+                }
+            }
+        });
+        socket.on('movePoint', function (data) {
+            if (data.sender != me) {
+                var g = new mydatabase.HyperLocal.elementType(JSON.parse(data.p));
+                console.log('movePoint received', g);
+                var realG = points[g.id];
+                if (realG) {
+                    console.log('real g', realG);
+                    realG.removeMapObject();
+                }
+                add2map(g);
+                points[g.id] = g;
+            }
+        });
     });
 };
-
