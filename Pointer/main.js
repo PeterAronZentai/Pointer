@@ -89,7 +89,7 @@ function main() {
 
 
 
-    var markerGroups = {
+    markerGroups = {
         'My Pins': undefined,
         'Food & Drink': L.AwesomeMarkers.icon({
             icon: 'food', color: 'red', spin: false
@@ -111,7 +111,7 @@ function main() {
         })
     }
 
-    var useClusters = false;
+    var useClusters = true;
 
     function getPinGroup() {
         return useClusters ? new L.MarkerClusterGroup().addTo(lmap) : new L.LayerGroup().addTo(lmap);
@@ -188,18 +188,27 @@ function main() {
 
     function getPointsAroundMe(service, radius) {
         service.getGeo(lmap.getCenter(), radius).then(function (r) {
-            console.dir(r);
+            //console.dir(r);
+            for (var i in processed) {
+                processed[i].invalid = true;
+            }
+
             r.results.forEach(function (p) {
                 if (!processed[p.record_id]) {
-                    processed[p.record_id] = true;
                     var layer = pinGroups[p.record.type];
                     var icon = markerGroups[p.record.type];
                     icon = (icon ? { icon: icon } : {});
                     if (layer) {
-                        L.marker([p.record.lat, p.record.lon], icon)
+                        var marker = L.marker([p.record.lat, p.record.lon], icon)
                          .bindPopup("<b>" + (p.record.name || "No name given") + "</b><br />" + (p.record.cat || '') + ","
                                + (p.record.subcat) + "<br />" + (p.record.phone || "") + "<br/>" + p.record.addr)
                          .addTo(layer);
+                        processed[p.record_id] = marker;
+
+                        marker.removeFromMap = function () {
+                            layer.removeLayer(marker);
+                        }
+                        marker.invalid = false;
                     }
 
                     //        onTheMap[p.record_id] = true;
@@ -210,8 +219,19 @@ function main() {
                     //types[p.record.type]++;
                     //subcats[p.record.subcat] = subcats[p.record.subcat] || 0;
                     //subcats[p.record.subcat]++;
+                } else {
+                    processed[p.record_id].invalid = false;
                 }
             });
+
+            for (var i in processed)
+            {
+                if (processed[i].invalid === true)
+                {
+                    processed[i].removeFromMap();
+                    delete processed[i];
+                }
+            }
         });
     }
     //$data.service("http://dev-open.jaystack.net/a11d6738-0e23-4e04-957b-f14e149a9de8/1162e5ee-49ca-4afd-87be-4e17c491140b/api/mydatabase").then(function (tp) {
@@ -237,14 +257,16 @@ function main() {
             window.clearTimeout(aroundMeTimer);
             //console.log("dragstart");
         });
+
         lmap.on("dragend", function () {
             aroundMeTimer = window.setTimeout(function () {
                 var r = lmap.getCenter().distanceTo(lmap.getBounds().getSouthWest()) / 150000;
                 r = r.toString();
                 getPointsAroundMe(mydatabase, r);
-            }, 800);
+            }, 400);
             
         });
+
         var r = lmap.getCenter().distanceTo(lmap.getBounds().getSouthWest()) / 150000;
         r = r.toString();
         getPointsAroundMe(mydatabase, r);
