@@ -3,3 +3,8 @@ c:\dev\Pointer\Pointer\bin\Pointer.pdb
 c:\dev\Pointer\Pointer\obj\Debug\Pointer.csprojResolveAssemblyReference.cache
 c:\dev\Pointer\Pointer\obj\Debug\Pointer.dll
 c:\dev\Pointer\Pointer\obj\Debug\Pointer.pdb
+C:\git\Pointer\Pointer\bin\Pointer.dll
+C:\git\Pointer\Pointer\bin\Pointer.pdb
+C:\git\Pointer\Pointer\obj\Debug\Pointer.csprojResolveAssemblyReference.cache
+C:\git\Pointer\Pointer\obj\Debug\Pointer.dll
+C:\git\Pointer\Pointer\obj\Debug\Pointer.pdb
