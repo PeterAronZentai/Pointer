@@ -1,5 +1,6 @@
 function main() {
 
+    var bingKey = 'AmpN66zZQqp8WpszBYibPXrGky0EiHLPT75WtuA2Tmj7bS4jgba1Wu23LJH1ymqy';
     var me = $data.createGuid();
     var socket = io.connect('http://dev-open.jaystack.net:80', { resource: "a11d6738-0e23-4e04-957b-f14e149a9de8/1162e5ee-49ca-4afd-87be-4e17c491140b/socket.io" });
     var points = {};
@@ -84,7 +85,7 @@ function main() {
 
     lmap = new L.Map('map', { center: new L.LatLng(40.72121341440144, -74.00126159191132), maxZoom: 20, zoom: 19 });
     var osm = new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 22 });
-    var bing = new L.BingLayer("AmIrj9J3VEqVnTeA5WHadVN89sO5dvrf9blR6z2HX8npuRMyJYzzXhAR5t2S1ky-", { maxZoom: 22 });
+    var bing = new L.BingLayer(bingKey, { maxZoom: 22 });
     var cloudmade = new L.TileLayer('http://{s}.tile.cloudmade.com/003d6e8d9af14e7582b462c10e572a1a/997/256/{z}/{x}/{y}.png', { maxZoom: 22 });
 
     lmap.addLayer(bing);
@@ -92,10 +93,8 @@ function main() {
     //lmap.addControl(new L.Control.Layers({ "Bing": bing, 'CloudMade': cloudmade, 'OSM': osm }));
     //alert("getting position");
     navigator.geolocation.getCurrentPosition(function (o) {
-        //console.dir(arguments);
         //lmap.setView([o.coords.latitude, o.coords.longitude], 19);
         lmap.setView([40.72121341440144, -74.00126159191132], 19);
-        //alert("position acquired");
         console.log("position:", o);
     })
 
@@ -127,18 +126,23 @@ function main() {
 
     var useClusters = true;
 
-    function getPinGroup() {
-        return useClusters ? new L.MarkerClusterGroup().addTo(lmap) : new L.LayerGroup().addTo(lmap);
+    function getPinGroup(addToMap) {
+
+        var layer = useClusters ? new L.MarkerClusterGroup() : new L.LayerGroup();
+        if (addToMap) {
+            layer.addTo(lmap);
+        }
+        return layer;
     }
 
     var pinGroups = {
         'My Pins': lgroup,
-        'Food & Drink': getPinGroup(),
-        'Manufacturing & Wholesale Goods': getPinGroup(),
-        'Public Place': getPinGroup(),
-        'Retail Goods': getPinGroup(),
-        'Services': getPinGroup(),
-        'Transportation': getPinGroup()
+        'Food & Drink': getPinGroup(true),
+        'Manufacturing & Wholesale Goods': getPinGroup(true),
+        'Public Place': getPinGroup(true),
+        'Retail Goods': getPinGroup(true),
+        'Services': getPinGroup(false),
+        'Transportation': getPinGroup(true)
     }
 
     L.control.layers({ "Bing": bing, 'CloudMade': cloudmade, 'OSM': osm }, pinGroups, { position: 'topleft' }).addTo(lmap);
@@ -205,8 +209,8 @@ function main() {
    var localService = null;
 
    function getPointsAroundMe(service, radius) {
-        return;
-        service.getGeo(lmap.getCenter(), radius).then(function (r) {
+       service.getGeo(lmap.getCenter(), radius)
+              .then(function (r) {
             //console.dir(r);
             for (var i in processed) {
                 processed[i].invalid = true;
@@ -251,7 +255,7 @@ function main() {
                     delete processed[i];
                 }
             }
-        });
+              }).fail(function() { alert(JSON.stringify(arguments))});
     }
     //$data.service("http://dev-open.jaystack.net/a11d6738-0e23-4e04-957b-f14e149a9de8/1162e5ee-49ca-4afd-87be-4e17c491140b/api/mydatabase").then(function (tp) {
     //$data.service("http://192.168.1.98:12345/hl").then(function (tp) {
@@ -277,18 +281,36 @@ function main() {
             //console.log("dragstart");
         });
 
-        lmap.on("dragend", function () {
-            aroundMeTimer = window.setTimeout(function () {
-                var r = lmap.getCenter().distanceTo(lmap.getBounds().getSouthWest()) / 150000;
-                r = r.toString();
-                getPointsAroundMe(mydatabase, r);
-            }, 400);
-            
+        var lastZoom = 0;
+
+        function r() {
+            var r = lmap.getCenter().distanceTo(lmap.getBounds().getSouthWest()) / 150000;
+            r = r * 1.5;
+            r = Math.min(r, 0.0015);
+            return r.toString();
+        }
+
+        //lmap.on("zoomstart", function () {
+        //    if (lmap.getZoom() > 17) {
+        //        getPointsAroundMe(mydatabase, r());
+        //    }
+        //});
+
+        lmap.on("zoomend", function () {
+            if (lmap.getZoom() > 17) {
+                getPointsAroundMe(mydatabase, r());
+            }
         });
 
-        var r = lmap.getCenter().distanceTo(lmap.getBounds().getSouthWest()) / 150000;
-        r = r.toString();
-        getPointsAroundMe(mydatabase, r);
+        lmap.on("dragend", function () {
+            if (lmap.getZoom() > 17) {
+                aroundMeTimer = window.setTimeout(function () {
+                    getPointsAroundMe(mydatabase, r());
+                }, 800);
+            }
+        });
+
+        getPointsAroundMe(mydatabase, r());
 
         mydatabase
             .HyperLocal
@@ -322,8 +344,9 @@ function main() {
                     }
                     v.addressResults(r.Results);
                 });
-            }, 200);
+            }, 300);
         });
+
         lmap.on('dblclick', function (e) {
             window.clearTimeout(timer);
         });
@@ -332,7 +355,7 @@ function main() {
             if (data.sender != me) {
                 var g = new mydatabase.HyperLocal.elementType(JSON.parse(data.p));
                 console.log('newPoint received', g);
-                add2map(g);
+                add2map(g, blueMarker);
                 points[g.id] = g;
             }
         });
@@ -356,7 +379,7 @@ function main() {
                     console.log('real g', realG);
                     realG.removeMapObject();
                 }
-                add2map(g);
+                add2map(g, blueMarker);
                 points[g.id] = g;
             }
         });
