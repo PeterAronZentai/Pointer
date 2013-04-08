@@ -83,7 +83,7 @@ function main() {
     //var lmap = L.map('map').setView([47.4981, 19.04], 13);
 
 
-    lmap = new L.Map('map', { center: new L.LatLng(40.72121341440144, -74.00126159191132), maxZoom: 20, zoom: 19 });
+    lmap = new L.Map('map', { center: new L.LatLng(40.72121341440144, -74.00126159191132), maxZoom: 20, zoom: 16 });
     var osm = new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 22 });
     var bing = new L.BingLayer(bingKey, { maxZoom: 22 });
     var cloudmade = new L.TileLayer('http://{s}.tile.cloudmade.com/003d6e8d9af14e7582b462c10e572a1a/997/256/{z}/{x}/{y}.png', { maxZoom: 22 });
@@ -94,7 +94,7 @@ function main() {
     //alert("getting position");
     navigator.geolocation.getCurrentPosition(function (o) {
         //lmap.setView([o.coords.latitude, o.coords.longitude], 19);
-        lmap.setView([40.72121341440144, -74.00126159191132], 19);
+        lmap.setView([40.72121341440144, -74.00126159191132], 16);
         console.log("position:", o);
     })
 
@@ -121,6 +121,9 @@ function main() {
         }),
         'Transportation': L.AwesomeMarkers.icon({
             icon: 'exchange', color: 'cadetblue', spin: false
+        }),
+        'Other': L.AwesomeMarkers.icon({
+            icon: 'exchange', color: 'green', spin: false
         })
     }
 
@@ -142,7 +145,8 @@ function main() {
         'Public Place': getPinGroup(true),
         'Retail Goods': getPinGroup(true),
         'Services': getPinGroup(false),
-        'Transportation': getPinGroup(true)
+        'Transportation': getPinGroup(true),
+        'Other': getPinGroup(true)
     }
 
     L.control.layers({ "Bing": bing, 'CloudMade': cloudmade, 'OSM': osm }, pinGroups, { position: 'topleft' }).addTo(lmap);
@@ -207,6 +211,54 @@ function main() {
     subcats = {};
 
    var localService = null;
+   function getMapPoints(service) {
+       service.getGeoRect(lmap.getBounds().getSouthWest(), lmap.getBounds().getNorthEast())
+              .then(function (r) {
+                  //console.dir(r);
+                  for (var i in processed) {
+                      processed[i].invalid = true;
+                  }
+
+                  r.results.forEach(function (p) {
+                      if (!processed[p.record_id]) {
+                          var layer = pinGroups[p.record.type] || pinGroups['Other'];
+                          var icon = markerGroups[p.record.type] || markerGroups['Other'];
+                          icon = (icon ? { icon: icon } : {});
+                          if (layer) {
+                              var marker = L.marker([p.record.lat, p.record.lon], icon)
+                               .bindPopup("<b>" + (p.record.name || "No name given") + "</b><br />" + (p.record.cat || '') + ","
+                                     + (p.record.subcat) + "<br />" + (p.record.phone || "") + "<br/>" + p.record.addr)
+                               .addTo(layer);
+                              processed[p.record_id] = marker;
+
+                              marker.removeFromMap = function () {
+                                  layer.removeLayer(marker);
+                              }
+                              marker.invalid = false;
+                          }
+
+                          //        onTheMap[p.record_id] = true;
+                          //stats
+                          //cats[p.record.cat] = cats[p.record.cat] || 0;
+                          //cats[p.record.cat]++;
+                          //types[p.record.type] = types[p.record.type] || 0;
+                          //types[p.record.type]++;
+                          //subcats[p.record.subcat] = subcats[p.record.subcat] || 0;
+                          //subcats[p.record.subcat]++;
+                      } else {
+                          processed[p.record_id].invalid = false;
+                      }
+                  });
+
+                  for (var i in processed) {
+                      if (processed[i].invalid === true) {
+                          processed[i].removeFromMap();
+                          delete processed[i];
+                      }
+                  }
+              }).fail(function () { alert(JSON.stringify(arguments)) });
+   }
+
 
    function getPointsAroundMe(service, radius) {
        service.getGeo(lmap.getCenter(), radius)
@@ -218,8 +270,8 @@ function main() {
 
             r.results.forEach(function (p) {
                 if (!processed[p.record_id]) {
-                    var layer = pinGroups[p.record.type];
-                    var icon = markerGroups[p.record.type];
+                    var layer = pinGroups[p.record.type] || pinGroups['Other'];
+                    var icon = markerGroups[p.record.type] || markerGroups['Other'];
                     icon = (icon ? { icon: icon } : {});
                     if (layer) {
                         var marker = L.marker([p.record.lat, p.record.lon], icon)
@@ -286,7 +338,7 @@ function main() {
         function r() {
             var r = lmap.getCenter().distanceTo(lmap.getBounds().getSouthWest()) / 150000;
             r = r * 1.5;
-            r = Math.min(r, 0.0015);
+            //r = Math.min(r, 0.0015);
             return r.toString();
         }
 
@@ -297,20 +349,20 @@ function main() {
         //});
 
         lmap.on("zoomend", function () {
-            if (lmap.getZoom() > 17) {
-                getPointsAroundMe(mydatabase, r());
+            if (lmap.getZoom() > 15) {
+                getMapPoints(mydatabase);
             }
         });
 
         lmap.on("dragend", function () {
-            if (lmap.getZoom() > 17) {
+            if (lmap.getZoom() > 15) {
                 aroundMeTimer = window.setTimeout(function () {
-                    getPointsAroundMe(mydatabase, r());
+                    getMapPoints(mydatabase);
                 }, 800);
             }
         });
 
-        getPointsAroundMe(mydatabase, r());
+        getMapPoints(mydatabase);
 
         mydatabase
             .HyperLocal
